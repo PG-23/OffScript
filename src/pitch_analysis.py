@@ -9,6 +9,10 @@ def load_data(path='../data/processed/pitcher_data.parquet'):
     """Load the combined pitcher dataset."""
     return pd.read_parquet(path)
 
+def load_clean_data(path='../data/processed/pitcher_data_clean.parquet'):
+    """Load the cleaned pitcher dataset for modeling."""
+    return pd.read_parquet(path)
+
 def get_pitcher(data, name):
     """Filter dataset to a single pitcher."""
     return data[data['pitcher_name'] == name].copy()
