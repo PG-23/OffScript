@@ -19,6 +19,10 @@ data/processed/
 *.parquet
 *.db
 
+# Model files — too large for git
+models/*.pkl
+models/*.joblib
+
 # pybaseball cache
 .pybaseball/
 
