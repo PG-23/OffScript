@@ -16,7 +16,7 @@ whether they are effective.
 - Expose findings via API for downstream consumption
 
 ## Project Status
-🔵 Phase 1 — Data Foundation (In Progress)
+🔵 Phase 5 — API Layer (In Progress)
 
 ## Tech Stack
 - Python 3.11
@@ -34,11 +34,12 @@ conda activate offscript
 MLB Statcast data via [pybaseball](https://github.com/jldbc/pybaseball)
 
 ## Project Phases
-- [ ] Phase 1 — Data Foundation
-- [ ] Phase 2 — Baseline Theory Model
-- [ ] Phase 3 — Deviation Analysis
-- [ ] Phase 4 — Batter Vulnerability Mapping
+- [x] Phase 1 — Data Foundation
+- [x] Phase 2 — Baseline Theory Model
+- [x] Phase 3 — Deviation Analysis
+- [x] Phase 4 — Batter Vulnerability Mapping
 - [ ] Phase 5 — API Layer
+- [ ] Phase 6 — Deployment
 
 ## Author
 Patrick Guinn — [LinkedIn](https://www.linkedin.com/in/patrick-guinn/) | [GitHub](https://github.com/PG-23)
