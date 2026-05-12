@@ -11,7 +11,14 @@ def load_data(path='../data/processed/pitcher_data.parquet'):
 
 def load_clean_data(path='../data/processed/pitcher_data_clean.parquet'):
     """Load the cleaned pitcher dataset for modeling."""
-    return pd.read_parquet(path)
+    data = pd.read_parquet(path)
+    
+    # Fix baserunner columns — Statcast stores runner MLBAM IDs not binary flags
+    for col in ['on_1b', 'on_2b', 'on_3b']:
+        if col in data.columns:
+            data[col] = (data[col].fillna(0) != 0).astype(int)
+    
+    return data
 
 def get_pitcher(data, name):
     """Filter dataset to a single pitcher."""
