@@ -143,10 +143,49 @@ class DataStore:
             columns=['batter', 'batter_name', 'stand',
                      'pitch_type', 'vulnerability_score']
         )
-        self.pitcher_data = pd.DataFrame(
-            columns=['pitcher_name', 'pitch_type', 'recommended_pitch',
-                     'followed_recommendation', 'balls', 'strikes']
-        )
+        # Mock pitcher data with enough rows for arsenal endpoint
+        self.pitcher_data = pd.DataFrame([
+            {
+                'pitcher_name': 'Gerrit Cole',
+                'pitch_type': 'FF',
+                'recommended_pitch': 'FF',
+                'followed_recommendation': True,
+                'balls': 0,
+                'strikes': 0
+            },
+            {
+                'pitcher_name': 'Gerrit Cole',
+                'pitch_type': 'SL',
+                'recommended_pitch': 'FF',
+                'followed_recommendation': False,
+                'balls': 0,
+                'strikes': 2
+            },
+            {
+                'pitcher_name': 'Gerrit Cole',
+                'pitch_type': 'KC',
+                'recommended_pitch': 'KC',
+                'followed_recommendation': True,
+                'balls': 1,
+                'strikes': 2
+            },
+            {
+                'pitcher_name': 'Chris Sale',
+                'pitch_type': 'FF',
+                'recommended_pitch': 'SL',
+                'followed_recommendation': False,
+                'balls': 0,
+                'strikes': 0
+            },
+            {
+                'pitcher_name': 'Chris Sale',
+                'pitch_type': 'SL',
+                'recommended_pitch': 'SL',
+                'followed_recommendation': True,
+                'balls': 0,
+                'strikes': 2
+            }
+        ])
 
         print("Mock DataStore ready")
 
