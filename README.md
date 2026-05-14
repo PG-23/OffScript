@@ -10,7 +10,7 @@ batters are best positioned to exploit each pitcher's patterns.
 
 ## Project Status
 
-🔵 **Phase 5 — API Layer (In Progress)**
+🔵 **Phase 6 — Deployment (In Progress)**
 
 | Phase | Description | Status |
 |---|---|---|
@@ -18,8 +18,8 @@ batters are best positioned to exploit each pitcher's patterns.
 | 2 | Baseline theory model — XGBoost pitch selection classifier | ✅ Complete |
 | 3 | Deviation analysis — per-pitcher deviation scoring and effectiveness | ✅ Complete |
 | 4 | Batter vulnerability mapping — matchup engine and exploitability scores | ✅ Complete |
-| 5 | API layer — FastAPI backend exposing model and matchup data | 🔵 In Progress |
-| 6 | Deployment — Docker, CI/CD, Kubernetes | ⬜ Planned |
+| 5 | API layer — FastAPI backend exposing model and matchup data | ✅ Complete |
+| 6 | Deployment — Docker, CI/CD, Kubernetes | 🔵 In Progress |
 
 ## Key Findings
 
