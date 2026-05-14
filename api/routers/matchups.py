@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from api.config import store
 from api.models.schemas import MatchupScore, MatchupList
+from urllib.parse import unquote
 
 router = APIRouter()
 
@@ -19,6 +20,7 @@ def get_exploitation_tier(score: float) -> str:
 
 @router.get("/{pitcher_name}", response_model=MatchupList)
 def get_pitcher_matchups(
+    
     pitcher_name: str,
     top_n: int = Query(10, ge=1, le=50,
                        description="Number of matchups to return"),
@@ -28,6 +30,9 @@ def get_pitcher_matchups(
     Return the batters most likely to exploit a pitcher's
     deviation patterns, ranked by matchup score.
     """
+    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
+    pitcher_name = unquote(pitcher_name).strip()
+
     matchups = store.matchup_scores
 
     # Case insensitive pitcher match
@@ -77,6 +82,9 @@ def get_pitcher_matchups(
 @router.get("/{pitcher_name}/{batter_name}")
 def get_specific_matchup(pitcher_name: str, batter_name: str):
     """Return matchup score for a specific pitcher-batter combination."""
+    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
+    pitcher_name = unquote(pitcher_name).strip()
+
     matchups = store.matchup_scores
 
     match = matchups[

@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from api.config import store
 from api.models.schemas import PitcherProfile, PitcherSummary
 import numpy as np
+from urllib.parse import unquote
 
 router = APIRouter()
 
@@ -25,6 +26,10 @@ def get_all_pitchers():
 @router.get("/{pitcher_name}", response_model=PitcherProfile)
 def get_pitcher_profile(pitcher_name: str):
     """Return full deviation profile for a specific pitcher."""
+
+    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
+    pitcher_name = unquote(pitcher_name).strip()
+
     profiles = store.pitcher_profiles
     match = profiles[
         profiles['pitcher_name'].str.lower() == pitcher_name.lower()
@@ -62,6 +67,10 @@ def get_pitcher_profile(pitcher_name: str):
 @router.get("/{pitcher_name}/arsenal")
 def get_pitcher_arsenal(pitcher_name: str):
     """Return pitch type distribution for a specific pitcher."""
+    
+    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
+    pitcher_name = unquote(pitcher_name).strip()
+    
     data = store.pitcher_data
     match = data[
         data['pitcher_name'].str.lower() == pitcher_name.lower()
@@ -70,7 +79,8 @@ def get_pitcher_arsenal(pitcher_name: str):
     if len(match) == 0:
         raise HTTPException(
             status_code=404,
-            detail=f"Pitcher '{pitcher_name}' not found."
+            detail=f"Pitcher '{pitcher_name}' not found. "
+                   f"Available: {store.get_pitcher_names()}"
         )
 
     arsenal = (match['pitch_type']
@@ -87,6 +97,10 @@ def get_pitcher_arsenal(pitcher_name: str):
 @router.get("/{pitcher_name}/deviations")
 def get_pitcher_deviations(pitcher_name: str):
     """Return deviation substitution patterns for a pitcher."""
+
+    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
+    pitcher_name = unquote(pitcher_name).strip()
+    
     data = store.pitcher_data
     match = data[
         data['pitcher_name'].str.lower() == pitcher_name.lower()
