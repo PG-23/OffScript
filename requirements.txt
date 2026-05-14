@@ -1,0 +1,25 @@
+# Core data
+pybaseball==2.2.7
+pandas==3.0.2
+numpy==2.4.4
+pyarrow==24.0.0
+
+# Machine learning
+scikit-learn==1.8.0
+xgboost==3.2.0
+shap==0.51.0
+joblib==1.5.3
+
+# API
+fastapi==0.136.1
+uvicorn==0.46.0
+pydantic==2.13.4
+
+# Testing
+pytest==9.0.3
+httpx==0.28.1
+
+# Visualization — notebooks only, not needed in Docker container
+matplotlib==3.10.9
+seaborn==0.13.2
+jupyter==1.1.1

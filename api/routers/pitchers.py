@@ -40,12 +40,6 @@ def get_pitcher_profile(pitcher_name: str):
 
     row = match.iloc[0]
 
-    # Print row contents to terminal for debugging
-    print("DEBUG row contents:")
-    print(row.to_dict())
-    print("DEBUG dtypes:")
-    print(row.index.tolist())
-
     try:
         return PitcherProfile(
             pitcher_name=str(row['pitcher_name']),
@@ -137,13 +131,4 @@ def get_pitcher_deviations(pitcher_name: str):
             len(deviations) / len(match) * 100, 1
         ),
         "substitution_patterns": result
-    }
-
-@router.get("/debug/columns")
-def debug_columns():
-    """Temporary diagnostic endpoint."""
-    return {
-        "columns": store.pitcher_profiles.columns.tolist(),
-        "dtypes": store.pitcher_profiles.dtypes.astype(str).to_dict(),
-        "sample": store.pitcher_profiles.iloc[0].to_dict()
     }

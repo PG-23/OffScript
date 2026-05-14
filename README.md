@@ -37,6 +37,28 @@ batters are best positioned to exploit each pitcher's patterns.
 - The matchup engine produces a **correlation of -0.363** between deviation cost and batter
   exploitability, confirming the engine correctly identifies vulnerable pitchers
 
+## API
+
+The OffScript API is built with FastAPI and exposes model inference
+and analysis data as REST endpoints.
+
+**Running locally:**
+```bash
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+Visit `http://localhost:8000/docs` for interactive Swagger documentation.
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/health` | GET | API health check |
+| `/pitchers` | GET | All pitcher deviation profiles |
+| `/pitchers/{name}` | GET | Specific pitcher profile |
+| `/pitchers/{name}/arsenal` | GET | Pitcher pitch mix distribution |
+| `/pitchers/{name}/deviations` | GET | Deviation substitution patterns |
+| `/matchups/{pitcher}` | GET | Top batter matchups for a pitcher |
+| `/matchups/{pitcher}/{batter}` | GET | Specific pitcher-batter matchup |
+| `/recommend` | POST | Live pitch recommendation for a game situation |
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -52,7 +74,19 @@ batters are best positioned to exploit each pitcher's patterns.
 ## Project Structure
 
 ```
-offscript/
+OffScript/
+├── api/
+│   ├── routers/
+│   │   ├── pitchers.py     # Pitcher profile endpoints
+│   │   ├── matchups.py     # Matchup scoring endpoints
+│   │   └── recommend.py    # Pitch recommendation endpoint
+│   ├── models/
+│   │   └── schemas.py      # Pydantic request/response schemas
+│   ├── tests/
+│   │   ├── test_pitchers.py
+│   │   └── test_recommend.py
+│   ├── main.py             # FastAPI application entry point
+│   └── config.py           # Configuration and data loader
 ├── data/
 │   ├── processed/          # Parquet files produced by each phase
 │   └── raw/                # Raw Statcast exports (gitignored)
@@ -67,10 +101,13 @@ offscript/
 │   ├── 07_batter_data_collection.ipynb
 │   └── 08_matchup_analysis.ipynb
 ├── reports/
-│   └── figures/            # All saved visualisations
+│   └── figures/            # All saved visualizations
 ├── src/
-│   └── pitch_analysis.py   # Shared utility functions used across notebooks
+│   └── pitch_analysis.py   # Shared utility functions
+├── .gitignore
 ├── environment.yml
+├── requirements.txt        # Full development environment
+├── requirements-api.txt    # API only — used by Docker
 └── README.md
 ```
 
@@ -96,7 +133,7 @@ and output files in the header cell.
 
 MLB Statcast pitch-by-pitch data via [pybaseball](https://github.com/jldbc/pybaseball),
 covering the 2023 and 2024 regular seasons and postseason for a curated roster of
-15 pitchers across four archetypes: Power Arms, Finesse, Ground Ball, and Deviation
+14 pitchers across four archetypes: Power Arms, Finesse, Ground Ball, and Deviation
 Candidates.
 
 ## Pitcher Roster
@@ -107,7 +144,7 @@ Candidates.
 | Finesse | Zack Wheeler, Kyle Hendricks, Chris Sale |
 | Ground Ball | Logan Webb, Framber Valdez, Marcus Stroman |
 | Veterans | Max Scherzer, Justin Verlander |
-| Deviation Candidates | Yusei Kikuchi, Dylan Cease, Joe Ryan, Nestor Cortes |
+| Deviation Candidates | Yusei Kikuchi, Dylan Cease, Nestor Cortes |
 
 ## Author
 

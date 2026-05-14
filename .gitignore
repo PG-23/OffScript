@@ -39,6 +39,16 @@ venv/
 .DS_Store
 Thumbs.db
 
+# Docker
+*.dockerignore
+
+# Pytest
+.pytest_cache/
+
+# Coverage reports (if coverage is added later)
+htmlcov/
+.coverage
+
 # IDE
 .vscode/
 .idea/
