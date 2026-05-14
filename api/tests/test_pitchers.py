@@ -35,4 +35,8 @@ def test_pitcher_arsenal():
     assert response.status_code == 200
     data = response.json()
     assert "arsenal" in data
+    assert "total_pitches" in data
     assert len(data["arsenal"]) > 0
+    # Verify percentages are valid
+    total = sum(data["arsenal"].values())
+    assert 0.99 <= total <= 1.01
