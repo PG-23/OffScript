@@ -1,0 +1,7 @@
+# k8s/namespace.yml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: offscript
+  labels:
+    app: offscript

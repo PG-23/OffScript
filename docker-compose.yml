@@ -1,0 +1,39 @@
+# docker-compose.yml
+
+services:
+  offscript-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: offscript-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount local data and models into the container at runtime
+      # This avoids baking large data files into the image
+      - ./data/processed:/app/data/processed:ro
+      - ./models:/app/models:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", 
+             "import httpx; httpx.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Optional: Add a simple test runner service
+  offscript-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: offscript-tests
+    volumes:
+      - ./data/processed:/app/data/processed:ro
+      - ./models:/app/models:ro
+      - ./api/tests:/app/api/tests:ro
+    command: ["pytest", "api/tests/", "-v"]
+    profiles:
+      - test

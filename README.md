@@ -10,8 +10,6 @@ batters are best positioned to exploit each pitcher's patterns.
 
 ## Project Status
 
-🔵 **Phase 6 — Deployment (In Progress)**
-
 | Phase | Description | Status |
 |---|---|---|
 | 1 | Data foundation — Statcast pipeline, EDA, data quality | ✅ Complete |
@@ -19,7 +17,7 @@ batters are best positioned to exploit each pitcher's patterns.
 | 3 | Deviation analysis — per-pitcher deviation scoring and effectiveness | ✅ Complete |
 | 4 | Batter vulnerability mapping — matchup engine and exploitability scores | ✅ Complete |
 | 5 | API layer — FastAPI backend exposing model and matchup data | ✅ Complete |
-| 6 | Deployment — Docker, CI/CD, Kubernetes | 🔵 In Progress |
+| 6 | Deployment — Docker, GitHub Actions, Kubernetes | ✅ Complete |
 
 ## Key Findings
 
@@ -58,6 +56,25 @@ Visit `http://localhost:8000/docs` for interactive Swagger documentation.
 | `/matchups/{pitcher}` | GET | Top batter matchups for a pitcher |
 | `/matchups/{pitcher}/{batter}` | GET | Specific pitcher-batter matchup |
 | `/recommend` | POST | Live pitch recommendation for a game situation |
+
+## Docker
+
+**Build the image:**
+```bash
+docker build -t offscript-api:latest .
+```
+
+**Run with Docker Compose:**
+```bash
+docker-compose up
+```
+
+**Run tests in container:**
+```bash
+docker-compose --profile test run offscript-tests
+```
+
+Visit `http://localhost:8000/docs` for interactive documentation.
 
 ## Tech Stack
 
