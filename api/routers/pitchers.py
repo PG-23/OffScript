@@ -3,8 +3,6 @@
 from fastapi import APIRouter, HTTPException
 from api.config import store
 from api.models.schemas import PitcherProfile, PitcherSummary
-import numpy as np
-from urllib.parse import unquote
 
 router = APIRouter()
 
@@ -23,54 +21,9 @@ def get_all_pitchers():
         for _, row in profiles.iterrows()
     ]
 
-@router.get("/{pitcher_name}", response_model=PitcherProfile)
-def get_pitcher_profile(pitcher_name: str):
-    """Return full deviation profile for a specific pitcher."""
-
-    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
-    pitcher_name = unquote(pitcher_name).strip()
-
-    profiles = store.pitcher_profiles
-    match = profiles[
-        profiles['pitcher_name'].str.lower() == pitcher_name.lower()
-    ]
-
-    if len(match) == 0:
-        available = store.get_pitcher_names()
-        raise HTTPException(
-            status_code=404,
-            detail=f"Pitcher '{pitcher_name}' not found. "
-                   f"Available: {available}"
-        )
-
-    row = match.iloc[0]
-
-    try:
-        return PitcherProfile(
-            pitcher_name=str(row['pitcher_name']),
-            total_pitches=int(row['total_pitches']),
-            deviation_score=round(float(row['deviation_score']), 2),
-            deviation_advantage=round(float(row['deviation_advantage']), 2),
-            two_strike_dev_cost=round(float(row['two_strike_dev_cost']), 2),
-            arsenal_size=int(row['arsenal_size']),
-            deviation_rank=int(row['deviation_rank']) 
-                           if 'deviation_rank' in row.index 
-                           else 0
-        )
-    except Exception as e:
-        print(f"ERROR building response: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error building pitcher profile: {str(e)}"
-        )
-
 @router.get("/{pitcher_name}/arsenal")
 def get_pitcher_arsenal(pitcher_name: str):
     """Return pitch type distribution for a specific pitcher."""
-    
-    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
-    pitcher_name = unquote(pitcher_name).strip()
-    
     data = store.pitcher_data
     match = data[
         data['pitcher_name'].str.lower() == pitcher_name.lower()
@@ -97,10 +50,6 @@ def get_pitcher_arsenal(pitcher_name: str):
 @router.get("/{pitcher_name}/deviations")
 def get_pitcher_deviations(pitcher_name: str):
     """Return deviation substitution patterns for a pitcher."""
-
-    # Decode URL encoding e.g. Gerrit%20Cole -> Gerrit Cole
-    pitcher_name = unquote(pitcher_name).strip()
-    
     data = store.pitcher_data
     match = data[
         data['pitcher_name'].str.lower() == pitcher_name.lower()
@@ -146,3 +95,40 @@ def get_pitcher_deviations(pitcher_name: str):
         ),
         "substitution_patterns": result
     }
+
+@router.get("/{pitcher_name}", response_model=PitcherProfile)
+def get_pitcher_profile(pitcher_name: str):
+    """Return full deviation profile for a specific pitcher."""
+    profiles = store.pitcher_profiles
+    match = profiles[
+        profiles['pitcher_name'].str.lower() == pitcher_name.lower()
+    ]
+
+    if len(match) == 0:
+        available = store.get_pitcher_names()
+        raise HTTPException(
+            status_code=404,
+            detail=f"Pitcher '{pitcher_name}' not found. "
+                   f"Available: {available}"
+        )
+
+    row = match.iloc[0]
+
+    try:
+        return PitcherProfile(
+            pitcher_name=str(row['pitcher_name']),
+            total_pitches=int(row['total_pitches']),
+            deviation_score=round(float(row['deviation_score']), 2),
+            deviation_advantage=round(float(row['deviation_advantage']), 2),
+            two_strike_dev_cost=round(float(row['two_strike_dev_cost']), 2),
+            arsenal_size=int(row['arsenal_size']),
+            deviation_rank=int(row['deviation_rank'])
+                           if 'deviation_rank' in row.index
+                           else 0
+        )
+    except Exception as e:
+        print(f"ERROR building response: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error building pitcher profile: {str(e)}"
+        )
