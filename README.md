@@ -17,7 +17,7 @@ batters are best positioned to exploit each pitcher's patterns.
 | 3 | Deviation analysis — per-pitcher deviation scoring and effectiveness | ✅ Complete |
 | 4 | Batter vulnerability mapping — matchup engine and exploitability scores | ✅ Complete |
 | 5 | API layer — FastAPI backend exposing model and matchup data | ✅ Complete |
-| 6 | Deployment — Docker, GitHub Actions, Kubernetes | ✅ Complete |
+| 6 | Deployment — Docker, GitHub Actions, Kubernetes, Railway | ✅ Complete |
 
 ## Key Findings
 
@@ -34,6 +34,20 @@ batters are best positioned to exploit each pitcher's patterns.
   (+0.79%), suggesting strategic sophistication beyond what the baseline theory captures
 - The matchup engine produces a **correlation of -0.363** between deviation cost and batter
   exploitability, confirming the engine correctly identifies vulnerable pitchers
+
+## Live API
+
+**Base URL:** https://offscript-production-ba5b.up.railway.app
+
+| Endpoint | Description |
+|---|---|
+| [`/docs`](https://offscript-production-ba5b.up.railway.app/docs) | Interactive Swagger documentation |
+| [`/health`](https://offscript-production-ba5b.up.railway.app/health) | API health check |
+| [`/pitchers`](https://offscript-production-ba5b.up.railway.app/pitchers) | All pitcher deviation profiles |
+| [`/recommend`](https://offscript-production-ba5b.up.railway.app/recommend) | Live pitch recommendation |
+
+> Hosted on Railway. The first request may take 30-60 seconds
+> if the service has been inactive.
 
 ## API
 
@@ -75,6 +89,10 @@ docker-compose --profile test run offscript-tests
 ```
 
 Visit `http://localhost:8000/docs` for interactive documentation.
+
+> **Note:** The model file (~8 MB) is downloaded automatically from
+> GitHub Releases during the build. Ensure internet access is available
+> when building the image.
 
 ## Tech Stack
 
