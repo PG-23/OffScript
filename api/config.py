@@ -8,19 +8,35 @@ import pandas as pd
 # Base paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / 'data' / 'processed'
+DEPLOY_DATA_DIR = BASE_DIR / 'data' / 'deploy'
 MODELS_DIR = BASE_DIR / 'models'
-
-# Data file paths
-PITCHER_PROFILES_PATH = DATA_DIR / 'pitcher_profiles.parquet'
-MATCHUP_SCORES_PATH = DATA_DIR / 'matchup_scores.parquet'
-DEVIATION_EFFECTIVENESS_PATH = DATA_DIR / 'deviation_effectiveness.parquet'
-BATTER_VULNERABILITY_PATH = DATA_DIR / 'batter_vulnerability.parquet'
-PITCHER_DATA_PATH = DATA_DIR / 'pitcher_data_with_recommendations.parquet'
 
 # Model file paths
 MODEL_PATH = MODELS_DIR / 'baseline_pitch_model.pkl'
 LABEL_ENCODER_PATH = MODELS_DIR / 'label_encoder.pkl'
 PITCHER_ENCODER_PATH = MODELS_DIR / 'pitcher_encoder.pkl'
+
+def _get_data_path(deploy_name, processed_name=None):
+    """
+    Return deploy path if it exists, otherwise fall back to processed path.
+    This allows local development to use full data while deployment
+    uses the committed minimal subset automatically.
+    """
+    deploy_path = DEPLOY_DATA_DIR / deploy_name
+    if deploy_path.exists():
+        return deploy_path
+    processed_file = processed_name or deploy_name
+    return DATA_DIR / processed_file
+
+# Data file paths — prefer deploy data, fall back to processed data
+PITCHER_PROFILES_PATH = _get_data_path('pitcher_profiles.parquet')
+MATCHUP_SCORES_PATH = _get_data_path('matchup_scores.parquet')
+DEVIATION_EFFECTIVENESS_PATH = _get_data_path('deviation_effectiveness.parquet')
+BATTER_VULNERABILITY_PATH = _get_data_path('batter_vulnerability.parquet')
+PITCHER_DATA_PATH = _get_data_path(
+    'pitcher_data.parquet',
+    'pitcher_data_with_recommendations.parquet'
+)
 
 class DataStore:
     """
@@ -47,6 +63,10 @@ class DataStore:
         self.pitcher_encoder = joblib.load(PITCHER_ENCODER_PATH)
 
         print("Loading data...")
+        print(f"  Profiles:      {PITCHER_PROFILES_PATH}")
+        print(f"  Matchups:      {MATCHUP_SCORES_PATH}")
+        print(f"  Pitcher data:  {PITCHER_DATA_PATH}")
+
         self.pitcher_profiles = pd.read_parquet(PITCHER_PROFILES_PATH)
         self.matchup_scores = pd.read_parquet(MATCHUP_SCORES_PATH)
         self.deviation_effectiveness = pd.read_parquet(
@@ -64,7 +84,6 @@ class DataStore:
         from sklearn.preprocessing import LabelEncoder
         from unittest.mock import MagicMock
 
-        # Mock model that returns valid predictions
         mock_model = MagicMock()
         mock_model.predict.return_value = np.array([3])
         mock_model.predict_proba.return_value = np.array([[
@@ -73,12 +92,10 @@ class DataStore:
         ]])
         self.model = mock_model
 
-        # Mock label encoder with real pitch types
         le = LabelEncoder()
         le.fit(['CH', 'CU', 'FC', 'FF', 'FS', 'KC', 'SI', 'SL', 'ST'])
         self.label_encoder = le
 
-        # Mock pitcher encoder with real pitcher names
         pe = LabelEncoder()
         pe.fit([
             'Chris Sale', 'Corbin Burnes', 'Dylan Cease',
@@ -89,7 +106,6 @@ class DataStore:
         ])
         self.pitcher_encoder = pe
 
-        # Mock pitcher profiles dataframe
         self.pitcher_profiles = pd.DataFrame([
             {
                 'pitcher_name': 'Gerrit Cole',
@@ -115,7 +131,6 @@ class DataStore:
             }
         ])
 
-        # Mock matchup scores dataframe
         self.matchup_scores = pd.DataFrame([
             {
                 'pitcher_name': 'Chris Sale',
@@ -133,7 +148,6 @@ class DataStore:
             }
         ])
 
-        # Mock remaining dataframes as empty with correct columns
         self.deviation_effectiveness = pd.DataFrame(
             columns=['pitcher_name', 'deviation_positive_rate',
                      'followed_positive_rate', 'deviation_advantage']
@@ -142,7 +156,6 @@ class DataStore:
             columns=['batter', 'batter_name', 'stand',
                      'pitch_type', 'vulnerability_score']
         )
-        # Mock pitcher data with enough rows for arsenal endpoint
         self.pitcher_data = pd.DataFrame([
             {
                 'pitcher_name': 'Gerrit Cole',

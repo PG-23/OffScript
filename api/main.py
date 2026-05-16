@@ -2,9 +2,13 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from api.startup import ensure_model_exists
 from api.routers import pitchers, matchups, recommend
 from api.models.schemas import HealthCheck
 from api.config import store
+
+# Download model if not present — runs before app starts
+ensure_model_exists()
 
 app = FastAPI(
     title="OffScript API",

@@ -30,9 +30,28 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY api/ ./api/
 COPY src/ ./src/
 
+# Copy the minimal deploy data subset — these small parquet files
+# are committed to the repository and baked directly into the image.
+# This avoids the need for external volumes or cloud storage for
+# the analytical data the API serves.
+COPY data/deploy/ ./data/deploy/
+
+# Copy the small encoder files — these are committed to the repo
+# because they are tiny (< 1 KB each). The main model file is
+# downloaded separately at build time via startup.py.
+COPY models/label_encoder.pkl ./models/
+COPY models/pitcher_encoder.pkl ./models/
+
 # Create directories for data and models
-# These will be populated via Docker volumes at runtime
+# data/processed is used locally but not in deployment
+# models/ holds the downloaded model file after startup.py runs
 RUN mkdir -p data/processed models
+
+# Download the baseline pitch model from GitHub Releases at build time.
+# This runs once during the image build rather than at every container
+# startup, keeping startup time fast. The model is ~8 MB and is stored
+# in GitHub Releases rather than the repository to keep repo size small.
+RUN python api/startup.py
 
 # Expose the port the API runs on
 EXPOSE 8000
