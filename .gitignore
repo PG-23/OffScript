@@ -16,12 +16,19 @@ build/
 data/raw/
 data/processed/
 *.csv
-*.parquet
 *.db
+
+# Allow deploy data — small committed subset for production
+!data/deploy/
+!data/deploy/*.parquet
 
 # Model files — too large for git
 models/*.pkl
 models/*.joblib
+
+# Allow small encoder files — safe to commit
+!models/label_encoder.pkl
+!models/pitcher_encoder.pkl
 
 # pybaseball cache
 .pybaseball/
