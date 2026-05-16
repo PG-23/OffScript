@@ -29,7 +29,6 @@ class DataStore:
     Falls back to mock data in CI/testing environments.
     """
     def __init__(self):
-        # Check directly at init time — not at module load time
         testing = os.environ.get('TESTING', 'false').lower() == 'true'
         ci = os.environ.get('CI', 'false').lower() == 'true'
         models_exist = MODEL_PATH.exists()
