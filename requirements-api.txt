@@ -1,14 +1,27 @@
-# requirements-api.txt — API only, used by Docker
-pybaseball==2.2.7
+# requirements-api.txt — API dependencies only, used by Docker and CI
+#
+# Versions are pinned to ensure reproducible builds across environments.
+# To update: pip install --upgrade <package> then pin the new version here.
+
+# Data
 pandas==3.0.2
 numpy==2.4.4
 pyarrow==24.0.0
+
+# Machine learning
 scikit-learn==1.8.0
 xgboost==3.2.0
 shap==0.51.0
 joblib==1.5.3
+
+# Baseball data
+pybaseball==2.2.7
+
+# API
 fastapi==0.136.1
 uvicorn==0.46.0
 pydantic==2.13.4
+
+# Testing and HTTP client
 pytest==9.0.3
 httpx==0.28.1
