@@ -1,4 +1,8 @@
-# Core data
+# requirements.txt — full development dependencies for local use
+# Includes notebook and visualisation packages not needed in Docker.
+# For Docker and CI, see requirements-api.txt
+
+# Data
 pybaseball==2.2.7
 pandas==3.0.2
 numpy==2.4.4
@@ -15,11 +19,11 @@ fastapi==0.136.1
 uvicorn==0.46.0
 pydantic==2.13.4
 
-# Testing
+# Testing and HTTP client
 pytest==9.0.3
 httpx==0.28.1
 
-# Visualization — notebooks only, not needed in Docker container
+# Visualisation and notebooks — local development only, excluded from Docker
 matplotlib==3.10.9
 seaborn==0.13.2
-jupyter==1.1.1
+jupyterlab==4.5.7

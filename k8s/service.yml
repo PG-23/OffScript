@@ -1,4 +1,6 @@
-# k8s/service.yml
+# ── k8s/service.yml ───────────────────────────────────────────────────────
+# Exposes the deployment externally via a LoadBalancer on port 80.
+# Traffic on port 80 is forwarded to containerPort 8000 on the pods.
 apiVersion: v1
 kind: Service
 metadata:

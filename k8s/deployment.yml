@@ -1,4 +1,7 @@
-# k8s/deployment.yml
+# ── k8s/deployment.yml ────────────────────────────────────────────────────
+# Runs 2 replicas of the OffScript API container.
+# Resource limits prevent the container from consuming excessive cluster
+# resources — important on shared or cost-sensitive infrastructure.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,6 +36,7 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "500m"
+          # Liveness probe: restarts the container if the API stops responding
           livenessProbe:
             httpGet:
               path: /health
@@ -41,6 +45,7 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 10
             failureThreshold: 3
+          # Readiness probe: holds traffic until the API is fully initialized
           readinessProbe:
             httpGet:
               path: /health

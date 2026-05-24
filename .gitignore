@@ -19,6 +19,7 @@ data/processed/
 *.db
 
 # Allow deploy data — small committed subset for production
+!data/
 !data/deploy/
 !data/deploy/*.parquet
 

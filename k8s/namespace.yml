@@ -1,4 +1,6 @@
-# k8s/namespace.yml
+# ── k8s/namespace.yml ─────────────────────────────────────────────────────
+# Creates the offscript namespace that scopes all other k8s resources.
+# Apply first before any other manifests.
 apiVersion: v1
 kind: Namespace
 metadata:

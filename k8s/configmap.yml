@@ -1,3 +1,6 @@
+# ── k8s/configmap.yml ─────────────────────────────────────────────────────
+# Non-sensitive environment variables injected into the API container.
+# Sensitive values (API keys, secrets) should use Kubernetes Secrets instead.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,4 +10,4 @@ data:
   PYTHONUNBUFFERED: "1"
   API_VERSION: "1.0.0"
   LOG_LEVEL: "info"
-  TESTING: "true"
+  TESTING: "false"
