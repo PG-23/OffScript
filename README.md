@@ -109,23 +109,30 @@ Visit `http://localhost:8000/docs` for interactive documentation.
 ## Project Structure
 
 ```
-OffScript/
+offscript/
 ├── api/
-│   ├── routers/
-│   │   ├── pitchers.py     # Pitcher profile endpoints
-│   │   ├── matchups.py     # Matchup scoring endpoints
-│   │   └── recommend.py    # Pitch recommendation endpoint
 │   ├── models/
-│   │   └── schemas.py      # Pydantic request/response schemas
+│   │   └── schemas.py          # Pydantic request and response schemas
+│   ├── routers/
+│   │   ├── matchups.py         # GET /matchups/ endpoints
+│   │   ├── pitchers.py         # GET /pitchers/ endpoints
+│   │   └── recommend.py        # POST /recommend/ endpoint
 │   ├── tests/
+│   │   ├── test_matchups.py
 │   │   ├── test_pitchers.py
 │   │   └── test_recommend.py
-│   ├── main.py             # FastAPI application entry point
-│   └── config.py           # Configuration and data loader
+│   ├── config.py               # DataStore — loads models and data at startup
+│   ├── main.py                 # FastAPI application entry point
+│   └── startup.py              # Model download utility
 ├── data/
-│   ├── processed/          # Parquet files produced by each phase
-│   └── raw/                # Raw Statcast exports (gitignored)
-├── models/                 # Trained model artifacts (gitignored)
+│   ├── deploy/                 # Minimal parquet subset baked into Docker image
+│   └── processed/              # Full parquet files — local development only (gitignored)
+├── k8s/
+│   ├── configmap.yml           # Kubernetes environment configuration
+│   ├── deployment.yml          # Kubernetes deployment manifest
+│   ├── namespace.yml           # Kubernetes namespace definition
+│   └── service.yml             # Kubernetes service and ingress
+├── models/                     # Trained model artifacts (gitignored)
 ├── notebooks/
 │   ├── 01_initial_exploration.ipynb
 │   ├── 02_data_collection.ipynb
@@ -134,15 +141,20 @@ OffScript/
 │   ├── 05_baseline_model.ipynb
 │   ├── 06_deviation_analysis.ipynb
 │   ├── 07_batter_data_collection.ipynb
-│   └── 08_matchup_analysis.ipynb
+│   ├── 08_matchup_analysis.ipynb
+│   └── 09_deployment_data_prep.ipynb
 ├── reports/
-│   └── figures/            # All saved visualizations
+│   └── figures/                # All saved visualisations
 ├── src/
-│   └── pitch_analysis.py   # Shared utility functions
-├── .gitignore
-├── environment.yml
-├── requirements.txt        # Full development environment
-├── requirements-api.txt    # API only — used by Docker
+│   └── pitch_analysis.py       # Shared utility functions used across notebooks
+├── .dockerignore
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # CI pipeline — test and Docker build on push
+├── docker-compose.yml          # Local Docker development environment
+├── Dockerfile                  # Production container definition
+├── environment.yml             # Conda environment for local notebook development
+├── requirements-api.txt        # Pip dependencies for Docker and CI
 └── README.md
 ```
 
