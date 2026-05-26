@@ -18,6 +18,11 @@ batters are best positioned to exploit each pitcher's patterns.
 | 4 | Batter vulnerability mapping — matchup engine and exploitability scores | ✅ Complete |
 | 5 | API layer — FastAPI backend exposing model and matchup data | ✅ Complete |
 | 6 | Deployment — Docker, GitHub Actions, Kubernetes, Railway | ✅ Complete |
+| 7 | Monitoring — Prometheus metrics, Grafana dashboards, alert rules | ✅ Complete |
+
+> Active development continues. Planned additions include Terraform 
+> infrastructure as code, Azure Pipelines integration, and an 
+> AI-powered self-healing pipeline.
 
 ## Key Findings
 
@@ -71,6 +76,38 @@ Visit `http://localhost:8000/docs` for interactive Swagger documentation.
 | `/matchups/{pitcher}/{batter}` | GET | Specific pitcher-batter matchup |
 | `/recommend` | POST | Live pitch recommendation for a game situation |
 
+## Monitoring
+
+OffScript includes a full observability stack powered by Prometheus and Grafana,
+providing real-time visibility into API health, request volume, error rates, and
+response time distributions.
+
+**Run the full stack locally:**
+```bash
+docker-compose up
+```
+
+| Service | URL | Description |
+|---|---|---|
+| API | http://localhost:8000 | FastAPI REST API |
+| Metrics | http://localhost:8000/metrics | Raw Prometheus metrics |
+| Prometheus | http://localhost:9090 | Metrics storage and alerting |
+| Grafana | http://localhost:3000 | Monitoring dashboard (admin / offscript) |
+
+### Dashboard Panels
+- **Total API Requests** — cumulative request count since startup
+- **Requests Per Minute** — real-time request rate time series
+- **Request Rate by Endpoint** — per-endpoint traffic breakdown
+- **Error Rate %** — percentage of 4xx and 5xx responses
+- **95th Percentile Response Time** — latency distribution per endpoint
+- **API Status** — live UP/DOWN health indicator
+
+### Alert Rules
+Three alert rules are configured in Prometheus:
+- **OffScriptAPIDown** — fires if the API is unreachable for more than 1 minute
+- **HighErrorRate** — fires if error rate exceeds 5% for 2 consecutive minutes
+- **SlowResponseTime** — fires if p95 response time exceeds 2 seconds for 2 minutes
+
 ## Docker
 
 **Build the image:**
@@ -103,8 +140,9 @@ Visit `http://localhost:8000/docs` for interactive documentation.
 | Machine learning | XGBoost, scikit-learn, SHAP |
 | Visualisation | matplotlib, seaborn |
 | Notebook environment | JupyterLab |
-| API (Phase 5) | FastAPI, Pydantic |
-| Deployment (Phase 6) | Docker, GitHub Actions, Kubernetes |
+| API | FastAPI, Pydantic |
+| Monitoring | Prometheus, Grafana |
+| Deployment | Docker, GitHub Actions, Kubernetes |
 
 ## Project Structure
 
@@ -133,6 +171,16 @@ offscript/
 │   ├── namespace.yml           # Kubernetes namespace definition
 │   └── service.yml             # Kubernetes service and ingress
 ├── models/                     # Trained model artifacts (gitignored)
+├── monitoring/
+│   ├── prometheus/
+│   │   └── prometheus.yml      # Prometheus scrape and alerting configuration
+|   |   └── alert_rules.yml     # Alert rule definitions
+│   └── grafana/
+│       ├── dashboards/                   # Dashboard JSON files
+|       |   └── offscript_dashboard.json  # Pre-built API monitoring dashboard
+│       └── provisioning/
+│           ├── datasources/    # Grafana to Prometheus connection
+│           └── dashboards/     # Dashboard auto-load configuration
 ├── notebooks/
 │   ├── 01_initial_exploration.ipynb
 │   ├── 02_data_collection.ipynb
