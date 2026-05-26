@@ -1,0 +1,41 @@
+# monitoring/prometheus/alert_rules.yml
+
+groups:
+  - name: offscript_alerts
+    rules:
+
+      # Alert if API is down
+      - alert: OffScriptAPIDown
+        expr: up{job="offscript-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "OffScript API is down"
+          description: "The OffScript API has been unreachable for more than 1 minute."
+
+      # Alert if error rate exceeds 5%
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{job="offscript-api", status=~"5.."}[5m])
+          /
+          rate(http_requests_total{job="offscript-api"}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "More than 5% of requests are returning 5xx errors."
+
+      # Alert if response time exceeds 2 seconds
+      - alert: SlowResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket{job="offscript-api"}[5m])
+          ) > 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow API response times"
+          description: "95th percentile response time exceeds 2 seconds."

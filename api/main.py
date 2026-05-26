@@ -9,7 +9,7 @@ present in the models/ directory.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from prometheus_fastapi_instrumentator import Instrumentator
 from api.config import store
 from api.models.schemas import HealthCheck
 from api.routers import matchups, pitchers, recommend
@@ -43,6 +43,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Prometheus: instruments all routes automatically and exposes a /metrics
+# endpoint that Prometheus scrapes on a 15-second interval. Metrics include
+# request counts, latency histograms, and in-flight request gauges per
+# endpoint and HTTP method.
+Instrumentator().instrument(app).expose(app)
 
 # ── Routers ───────────────────────────────────────────────────────────────
 

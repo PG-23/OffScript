@@ -1,0 +1,24 @@
+# monitoring/prometheus/prometheus.yml
+
+global:
+  scrape_interval: 15s      # scrape metrics every 15 seconds
+  evaluation_interval: 15s  # evaluate alert rules every 15 seconds
+
+# Alert rules file
+rule_files:
+  - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+
+  # Scrape Prometheus itself
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Scrape the OffScript API
+  - job_name: offscript-api
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['offscript-api:8000']

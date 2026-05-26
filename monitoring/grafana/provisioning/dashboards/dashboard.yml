@@ -1,0 +1,12 @@
+# Tells Grafana where to find dashboard JSON files
+apiVersion: 1
+
+providers:
+  - name: OffScript
+    orgId: 1
+    folder: OffScript
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards
