@@ -57,6 +57,12 @@ Thumbs.db
 htmlcov/
 .coverage
 
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+
 # IDE
 .vscode/
 .idea/
