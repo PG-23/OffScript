@@ -19,10 +19,10 @@ batters are best positioned to exploit each pitcher's patterns.
 | 5 | API layer — FastAPI backend exposing model and matchup data | ✅ Complete |
 | 6 | Deployment — Docker, GitHub Actions, Kubernetes, Railway | ✅ Complete |
 | 7 | Monitoring — Prometheus metrics, Grafana dashboards, alert rules | ✅ Complete |
+| 8 | Infrastructure as Code — Terraform provisioning for full Kubernetes stack | ✅ Complete |
 
-> Active development continues. Planned additions include Terraform 
-> infrastructure as code, Azure Pipelines integration, and an 
-> AI-powered self-healing pipeline.
+> Active development continues. Planned additions include Azure Pipelines 
+> integration and an AI-powered self-healing pipeline.
 
 ## Key Findings
 
@@ -143,6 +143,7 @@ Visit `http://localhost:8000/docs` for interactive documentation.
 | API | FastAPI, Pydantic |
 | Monitoring | Prometheus, Grafana |
 | Deployment | Docker, GitHub Actions, Kubernetes |
+| Infrastructure as Code | Terraform |
 
 ## Project Structure
 
@@ -195,6 +196,12 @@ offscript/
 │   └── figures/                # All saved visualisations
 ├── src/
 │   └── pitch_analysis.py       # Shared utility functions used across notebooks
+├── terraform/
+│   └── kubernetes/
+│       ├── versions.tf         # Provider and Terraform version requirements
+│       ├── variables.tf        # Input variables with defaults
+│       ├── main.tf             # Resource definitions for full stack
+│       └── outputs.tf          # Output values displayed after apply
 ├── .dockerignore
 ├── .github/
 │   └── workflows/
