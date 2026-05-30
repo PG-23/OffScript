@@ -20,9 +20,10 @@ batters are best positioned to exploit each pitcher's patterns.
 | 6 | Deployment — Docker, GitHub Actions, Kubernetes, Railway | ✅ Complete |
 | 7 | Monitoring — Prometheus metrics, Grafana dashboards, alert rules | ✅ Complete |
 | 8 | Infrastructure as Code — Terraform provisioning for full Kubernetes stack | ✅ Complete |
+| 9 | Azure Pipelines — dual CI/CD pipeline alongside GitHub Actions | ✅ Complete |
 
-> Active development continues. Planned additions include Azure Pipelines 
-> integration and an AI-powered self-healing pipeline.
+> Active development continues. Planned additions include an
+> AI-powered self-healing pipeline.
 
 ## Key Findings
 
@@ -68,6 +69,7 @@ Visit `http://localhost:8000/docs` for interactive Swagger documentation.
 | Endpoint | Method | Description |
 |---|---|---|
 | `/health` | GET | API health check |
+| `/metrics` | GET | Prometheus metrics scrape endpoint |
 | `/pitchers` | GET | All pitcher deviation profiles |
 | `/pitchers/{name}` | GET | Specific pitcher profile |
 | `/pitchers/{name}/arsenal` | GET | Pitcher pitch mix distribution |
@@ -75,6 +77,35 @@ Visit `http://localhost:8000/docs` for interactive Swagger documentation.
 | `/matchups/{pitcher}` | GET | Top batter matchups for a pitcher |
 | `/matchups/{pitcher}/{batter}` | GET | Specific pitcher-batter matchup |
 | `/recommend` | POST | Live pitch recommendation for a game situation |
+
+## CI/CD
+
+OffScript ships with two parallel CI/CD pipelines that both trigger
+on every push to main.
+
+### GitHub Actions
+
+Defined in `.github/workflows/ci.yml`. Runs on Microsoft-hosted
+Ubuntu runners.
+
+| Step | Description |
+|---|---|
+| Install dependencies | Installs from requirements-api.txt |
+| Run tests | pytest suite across all API endpoints |
+| Build Docker image | Verifies container builds successfully |
+
+### Azure Pipelines
+
+Defined in `azure-pipelines.yml`. Runs on a self-hosted Windows
+agent with Anaconda Python 3.11.
+
+| Step | Description |
+|---|---|
+| Verify Python environment | Confirms Python and pip are available |
+| Install dependencies | Installs from requirements-api.txt |
+| Run pytest suite | Full test coverage with JUnit XML reporting |
+| Publish test results | Visual test results dashboard in Azure DevOps |
+| Build Docker image | Tagged with build ID for versioned artifact tracking |
 
 ## Monitoring
 
@@ -142,13 +173,14 @@ Visit `http://localhost:8000/docs` for interactive documentation.
 | Notebook environment | JupyterLab |
 | API | FastAPI, Pydantic |
 | Monitoring | Prometheus, Grafana |
-| Deployment | Docker, GitHub Actions, Kubernetes |
+| CI/CD | GitHub Actions, Azure Pipelines |
 | Infrastructure as Code | Terraform |
+| Deployment | Docker, Kubernetes, Railway |
 
 ## Project Structure
 
 ```
-offscript/
+OffScript/
 ├── api/
 │   ├── models/
 │   │   └── schemas.py          # Pydantic request and response schemas
@@ -174,11 +206,11 @@ offscript/
 ├── models/                     # Trained model artifacts (gitignored)
 ├── monitoring/
 │   ├── prometheus/
-│   │   └── prometheus.yml      # Prometheus scrape and alerting configuration
-|   |   └── alert_rules.yml     # Alert rule definitions
+│   │   ├── prometheus.yml      # Prometheus scrape and alerting configuration
+│   │   └── alert_rules.yml     # Alert rule definitions
 │   └── grafana/
-│       ├── dashboards/                   # Dashboard JSON files
-|       |   └── offscript_dashboard.json  # Pre-built API monitoring dashboard
+│       ├── dashboards/
+│       │   └── offscript_dashboard.json  # Pre-built API monitoring dashboard
 │       └── provisioning/
 │           ├── datasources/    # Grafana to Prometheus connection
 │           └── dashboards/     # Dashboard auto-load configuration
@@ -205,7 +237,8 @@ offscript/
 ├── .dockerignore
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # CI pipeline — test and Docker build on push
+│       └── ci.yml              # GitHub Actions CI pipeline
+├── azure-pipelines.yml         # Azure Pipelines CI configuration
 ├── docker-compose.yml          # Local Docker development environment
 ├── Dockerfile                  # Production container definition
 ├── environment.yml             # Conda environment for local notebook development
