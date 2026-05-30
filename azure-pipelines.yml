@@ -22,7 +22,6 @@ variables:
   PYTHON_VERSION: '3.11'
   TESTING: 'true'
   CI: 'true'
-  PIP_CACHE_DIR: $(Pipeline.Workspace)/.pip
 
 stages:
 
@@ -45,7 +44,8 @@ stages:
             displayName: Install dependencies
 
           - script: |
-              mkdir -p data/processed models
+              if not exist "data\processed" mkdir data\processed
+              if not exist "models" mkdir models
             displayName: Create required directories
 
           - script: |
