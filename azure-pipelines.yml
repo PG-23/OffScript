@@ -1,0 +1,86 @@
+# azure-pipelines.yml
+#
+# Azure Pipelines CI configuration for OffScript.
+# Runs in parallel with GitHub Actions (.github/workflows/ci.yml).
+# Triggered on every push to main and on pull requests.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  PYTHON_VERSION: '3.11'
+  TESTING: 'true'
+  CI: 'true'
+
+stages:
+
+  # ── Stage 1: Test ──────────────────────────────────────────────────────
+  - stage: Test
+    displayName: Run Tests
+    jobs:
+      - job: pytest
+        displayName: pytest — API endpoint coverage
+        steps:
+
+          - task: UsePythonVersion@0
+            displayName: Set Python version
+            inputs:
+              versionSpec: $(PYTHON_VERSION)
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements-api.txt
+            displayName: Install dependencies
+
+          - script: |
+              mkdir -p data/processed models
+            displayName: Create required directories
+
+          - script: |
+              pytest api/tests/ -v --tb=short --junitxml=test-results.xml
+            displayName: Run pytest suite
+            env:
+              TESTING: $(TESTING)
+              CI: $(CI)
+
+          - task: PublishTestResults@2
+            displayName: Publish test results to Azure DevOps
+            condition: always()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: test-results.xml
+              testRunTitle: OffScript API Tests
+
+  # ── Stage 2: Docker Build ──────────────────────────────────────────────
+  - stage: Docker
+    displayName: Build Docker Image
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+      - job: docker_build
+        displayName: Build and verify Docker image
+        steps:
+
+          - task: Docker@2
+            displayName: Build offscript-api image
+            inputs:
+              command: build
+              dockerfile: Dockerfile
+              tags: |
+                offscript-api:$(Build.BuildId)
+                offscript-api:latest
+
+          - script: |
+              docker images offscript-api
+            displayName: Verify image was built successfully
