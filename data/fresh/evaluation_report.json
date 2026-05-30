@@ -1,0 +1,14 @@
+{
+  "deploy_candidate": false,
+  "improvement": -0.04546988420987619,
+  "current_model": {
+    "accuracy": 0.37655229037665494,
+    "balanced_accuracy": 0.5044627095612886,
+    "samples_evaluated": 29231
+  },
+  "candidate_model": {
+    "accuracy": 0.4598912188280368,
+    "balanced_accuracy": 0.4589928253514124,
+    "samples_evaluated": 29233
+  }
+}

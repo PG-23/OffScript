@@ -1,0 +1,19 @@
+# airflow/requirements-airflow.txt
+# Dependencies for OffScript retraining pipeline scripts.
+# Installed into the custom Airflow Docker image.
+
+# Baseball data
+pybaseball==2.2.7
+
+# Data processing
+pandas==2.2.3
+numpy==1.26.4
+pyarrow==14.0.1
+
+# Machine learning
+scikit-learn==1.3.2
+xgboost==2.0.3
+joblib==1.3.2
+
+# Statistical analysis
+scipy==1.11.4

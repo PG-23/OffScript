@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-05-30T22:14:01.820848",
+  "deployed": false,
+  "reason": "candidate_did_not_improve",
+  "improvement": -0.04546988420987619,
+  "drift_detected": true,
+  "kubernetes_restart": false
+}
