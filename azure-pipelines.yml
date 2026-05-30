@@ -4,6 +4,10 @@
 # Runs in parallel with GitHub Actions (.github/workflows/ci.yml).
 # Triggered on every push to main and on pull requests.
 # Uses a self-hosted Windows agent with Anaconda Python 3.11.
+#
+# Pipeline stages:
+#   1. Test  — installs dependencies and runs pytest suite
+#   2. Docker — builds and tags the Docker image on test success
 
 trigger:
   branches:
@@ -19,13 +23,14 @@ pool:
   name: Default
 
 variables:
-  PYTHON_VERSION: '3.11'
   TESTING: 'true'
   CI: 'true'
 
 stages:
 
   # ── Stage 1: Test ──────────────────────────────────────────────────────
+  # Installs Python dependencies and runs the full pytest suite.
+  # Test results are published to Azure DevOps for visual reporting.
   - stage: Test
     displayName: Run Tests
     jobs:
@@ -64,6 +69,10 @@ stages:
               testRunTitle: OffScript API Tests
 
   # ── Stage 2: Docker Build ──────────────────────────────────────────────
+  # Builds the Docker image only after tests pass.
+  # Tags the image with both the build ID for traceability and
+  # latest for convenience. Uses direct Docker CLI to avoid
+  # file write warnings from the Docker@2 task on Windows agents.
   - stage: Docker
     displayName: Build Docker Image
     dependsOn: Test
@@ -73,15 +82,7 @@ stages:
         displayName: Build and verify Docker image
         steps:
 
-          - task: Docker@2
-            displayName: Build offscript-api image
-            inputs:
-              command: build
-              dockerfile: Dockerfile
-              tags: |
-                offscript-api:$(Build.BuildId)
-                offscript-api:latest
-
           - script: |
+              docker build -t offscript-api:$(Build.BuildId) -t offscript-api:latest .
               docker images offscript-api
-            displayName: Verify image was built successfully
+            displayName: Build and verify Docker image
