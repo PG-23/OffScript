@@ -21,9 +21,10 @@ batters are best positioned to exploit each pitcher's patterns.
 | 7 | Monitoring — Prometheus metrics, Grafana dashboards, alert rules | ✅ Complete |
 | 8 | Infrastructure as Code — Terraform provisioning for full Kubernetes stack | ✅ Complete |
 | 9 | Azure Pipelines — dual CI/CD pipeline alongside GitHub Actions | ✅ Complete |
+| 10 | AI Self-Healing Pipeline — Airflow DAG with drift detection and auto-retraining | ✅ Complete |
 
-> Active development continues. Planned additions include an
-> AI-powered self-healing pipeline.
+> All planned phases complete. The project continues to evolve —
+> future additions may include a game layer and expanded pitcher roster.
 
 ## Key Findings
 
@@ -139,6 +140,40 @@ Three alert rules are configured in Prometheus:
 - **HighErrorRate** — fires if error rate exceeds 5% for 2 consecutive minutes
 - **SlowResponseTime** — fires if p95 response time exceeds 2 seconds for 2 minutes
 
+## Self-Healing Pipeline
+
+OffScript includes an AI-powered self-healing pipeline that automatically
+detects model drift and retrains the pitch selection model on fresh
+Statcast data without human intervention.
+
+**Run the Airflow stack:**
+```bash
+docker-compose -f airflow/docker-compose-airflow.yml up -d
+```
+
+Visit `http://localhost:8080` for the Airflow dashboard (admin / offscript).
+
+### Pipeline Tasks
+
+| Task | Description |
+|---|---|
+| data_ingestion | Pulls fresh Statcast data for all 14 pitchers via pybaseball |
+| drift_detection | Chi-squared test and PSI analysis vs 2023-2024 baseline |
+| model_retraining | XGBoost retrained on combined historical and fresh data |
+| model_evaluation | Candidate vs current model on fresh data holdout set |
+| model_deployment | Promotes candidate if improved, triggers Kubernetes rolling restart |
+
+### Schedule
+Runs automatically every Monday at 06:00 UTC.
+
+### Key Finding From First Run (May 2026)
+Significant pitch selection drift detected between 2023-2024 and 2025
+seasons — fastball and cutter usage declined while slider and sinker
+usage increased substantially. The pipeline correctly retained the
+current model after determining the retrained candidate performed worse
+on 2025 data, demonstrating intelligent deployment decisions rather
+than blind auto-deployment.
+
 ## Docker
 
 **Build the image:**
@@ -175,45 +210,59 @@ Visit `http://localhost:8000/docs` for interactive documentation.
 | Monitoring | Prometheus, Grafana |
 | CI/CD | GitHub Actions, Azure Pipelines |
 | Infrastructure as Code | Terraform |
+| Pipeline orchestration | Apache Airflow |
 | Deployment | Docker, Kubernetes, Railway |
 
 ## Project Structure
 
 ```
 OffScript/
+├── airflow/
+│   ├── dags/
+│   │   └── offscript_retraining_dag.py     # Airflow DAG — orchestrates full retraining pipeline
+│   ├── scripts/
+│   │   ├── data_ingestion.py               # Task 1 — pulls fresh Statcast data via pybaseball
+│   │   ├── drift_detection.py              # Task 2 — chi-squared and PSI drift analysis
+│   │   ├── model_retraining.py             # Task 3 — retrains XGBoost on combined data
+│   │   ├── model_evaluation.py             # Task 4 — evaluates candidate vs current model
+│   │   ├── model_deployment.py             # Task 5 — promotes model and restarts Kubernetes
+│   │   └── __init__.py
+│   ├── Dockerfile.airflow                  # Custom Airflow image with pipeline dependencies
+│   ├── docker-compose-airflow.yml          # Airflow stack — webserver, scheduler, postgres
+│   └── requirements-airflow.txt            # Pipeline script dependencies
 ├── api/
 │   ├── models/
-│   │   └── schemas.py          # Pydantic request and response schemas
+│   │   └── schemas.py                      # Pydantic request and response schemas
 │   ├── routers/
-│   │   ├── matchups.py         # GET /matchups/ endpoints
-│   │   ├── pitchers.py         # GET /pitchers/ endpoints
-│   │   └── recommend.py        # POST /recommend/ endpoint
+│   │   ├── matchups.py                     # GET /matchups/ endpoints
+│   │   ├── pitchers.py                     # GET /pitchers/ endpoints
+│   │   └── recommend.py                    # POST /recommend/ endpoint
 │   ├── tests/
 │   │   ├── test_matchups.py
 │   │   ├── test_pitchers.py
 │   │   └── test_recommend.py
-│   ├── config.py               # DataStore — loads models and data at startup
-│   ├── main.py                 # FastAPI application entry point
-│   └── startup.py              # Model download utility
+│   ├── config.py                           # DataStore — loads models and data at startup
+│   ├── main.py                             # FastAPI application entry point
+│   └── startup.py                          # Model download utility
 ├── data/
-│   ├── deploy/                 # Minimal parquet subset baked into Docker image
-│   └── processed/              # Full parquet files — local development only (gitignored)
+│   ├── deploy/                             # Minimal parquet subset baked into Docker image
+│   └── processed/                          # Full parquet files — local development only (gitignored)
 ├── k8s/
-│   ├── configmap.yml           # Kubernetes environment configuration
-│   ├── deployment.yml          # Kubernetes deployment manifest
-│   ├── namespace.yml           # Kubernetes namespace definition
-│   └── service.yml             # Kubernetes service and ingress
-├── models/                     # Trained model artifacts (gitignored)
+│   ├── configmap.yml                       # Kubernetes environment configuration
+│   ├── deployment.yml                      # Kubernetes deployment manifest
+│   ├── namespace.yml                       # Kubernetes namespace definition
+│   └── service.yml                         # Kubernetes service and ingress
+├── models/                                 # Trained model artifacts (gitignored)
 ├── monitoring/
 │   ├── prometheus/
-│   │   ├── prometheus.yml      # Prometheus scrape and alerting configuration
-│   │   └── alert_rules.yml     # Alert rule definitions
+│   │   ├── prometheus.yml                  # Prometheus scrape and alerting configuration
+│   │   └── alert_rules.yml                 # Alert rule definitions
 │   └── grafana/
 │       ├── dashboards/
-│       │   └── offscript_dashboard.json  # Pre-built API monitoring dashboard
+│       │   └── offscript_dashboard.json    # Pre-built API monitoring dashboard
 │       └── provisioning/
-│           ├── datasources/    # Grafana to Prometheus connection
-│           └── dashboards/     # Dashboard auto-load configuration
+│           ├── datasources/                # Grafana to Prometheus connection
+│           └── dashboards/                 # Dashboard auto-load configuration
 ├── notebooks/
 │   ├── 01_initial_exploration.ipynb
 │   ├── 02_data_collection.ipynb
@@ -225,24 +274,24 @@ OffScript/
 │   ├── 08_matchup_analysis.ipynb
 │   └── 09_deployment_data_prep.ipynb
 ├── reports/
-│   └── figures/                # All saved visualisations
+│   └── figures/                            # All saved visualisations
 ├── src/
-│   └── pitch_analysis.py       # Shared utility functions used across notebooks
+│   └── pitch_analysis.py                   # Shared utility functions used across notebooks
 ├── terraform/
 │   └── kubernetes/
-│       ├── versions.tf         # Provider and Terraform version requirements
-│       ├── variables.tf        # Input variables with defaults
-│       ├── main.tf             # Resource definitions for full stack
-│       └── outputs.tf          # Output values displayed after apply
+│       ├── versions.tf                     # Provider and Terraform version requirements
+│       ├── variables.tf                    # Input variables with defaults
+│       ├── main.tf                         # Resource definitions for full stack
+│       └── outputs.tf                      # Output values displayed after apply
 ├── .dockerignore
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # GitHub Actions CI pipeline
-├── azure-pipelines.yml         # Azure Pipelines CI configuration
-├── docker-compose.yml          # Local Docker development environment
-├── Dockerfile                  # Production container definition
-├── environment.yml             # Conda environment for local notebook development
-├── requirements-api.txt        # Pip dependencies for Docker and CI
+│       └── ci.yml                          # GitHub Actions CI pipeline
+├── azure-pipelines.yml                     # Azure Pipelines CI configuration
+├── docker-compose.yml                      # Local Docker development environment
+├── Dockerfile                              # Production container definition
+├── environment.yml                         # Conda environment for local notebook development
+├── requirements-api.txt                    # Pip dependencies for Docker and CI
 └── README.md
 ```
 
