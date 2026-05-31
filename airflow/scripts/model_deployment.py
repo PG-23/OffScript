@@ -44,8 +44,14 @@ def promote_candidate_model() -> None:
         src = CANDIDATE_DIR / filename
         dst = PRODUCTION_DIR / filename
         if src.exists():
-            shutil.copy2(src, dst)
-            print(f"  Copied {filename}")
+            try:
+                # Read and write binary content directly
+                # avoids permission issues with shutil.copy2 metadata copy
+                dst.write_bytes(src.read_bytes())
+                print(f"  Copied {filename}")
+            except Exception as e:
+                print(f"  ERROR copying {filename}: {e}")
+                raise
         else:
             print(f"  WARNING: {filename} not found in candidate directory")
 
@@ -78,6 +84,12 @@ def trigger_kubernetes_restart() -> bool:
     except FileNotFoundError:
         print("  WARNING: kubectl not found — skipping Kubernetes restart")
         print("  Model files updated but API restart must be done manually")
+        return False
+    except PermissionError:
+        print("  WARNING: kubectl not executable from container — "
+              "skipping Kubernetes restart")
+        print("  Model files updated successfully")
+        print("  Run manually: kubectl rollout restart deployment/offscript-api -n offscript")
         return False
     except subprocess.TimeoutExpired:
         print("  WARNING: kubectl command timed out")

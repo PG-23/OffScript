@@ -22,6 +22,7 @@ batters are best positioned to exploit each pitcher's patterns.
 | 8 | Infrastructure as Code — Terraform provisioning for full Kubernetes stack | ✅ Complete |
 | 9 | Azure Pipelines — dual CI/CD pipeline alongside GitHub Actions | ✅ Complete |
 | 10 | AI Self-Healing Pipeline — Airflow DAG with drift detection and auto-retraining | ✅ Complete |
+| 11 | Retraining optimization — sliding window approach achieves model deployment | ✅ Complete |
 
 > All planned phases complete. The project continues to evolve —
 > future additions may include a game layer and expanded pitcher roster.
@@ -173,6 +174,14 @@ usage increased substantially. The pipeline correctly retained the
 current model after determining the retrained candidate performed worse
 on 2025 data, demonstrating intelligent deployment decisions rather
 than blind auto-deployment.
+
+### Retraining Strategy
+After initial testing showed combined historical and fresh data degraded
+model performance due to distribution mixing, a sliding window approach
+was implemented. Training on only the most recent 12 months of data
+produced a candidate model achieving 0.521 balanced accuracy versus
+the current model's 0.504 — a +0.017 improvement that triggered
+automatic deployment.
 
 ## Docker
 
